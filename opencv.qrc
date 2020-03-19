@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>QSS/TotalQSS.qss</file>
+        <file>Icon/double.png</file>
+        <file>Icon/filter.png</file>
+        <file>Icon/mid.png</file>
+        <file>Icon/noise.png</file>
+        <file>Icon/rotate.png</file>
+        <file>Icon/salt.png</file>
+        <file>Icon/scale.png</file>
+        <file>Icon/triangle.png</file>
+        <file>Icon/fourier.png</file>
+        <file>Icon/search.png</file>
+    </qresource>
+</RCC>
