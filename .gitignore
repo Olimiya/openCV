@@ -7,3 +7,4 @@ release
 *.qmake.*
 *.bat
 *.filters
+openCV.pro.user
