@@ -45,12 +45,12 @@ LIBS += -L$$(OPENCV_CUDA)/x64/vc15/lib \
         -lopencv_cudafeatures2d420d
 
 # CUDA
-INCLUDEPATH += $$(CUDA_PATH)/include \
-        F:\tools\CUDA10.2\Samples\common\inc
-LIBS += -L$$(CUDA_PATH/lib/x64 \
-        -lcublas -lcublasLt -lcuda -lcudadevrt -lcudart -lcudart_static -lcufft -lcufftw -lcurand -lcusolver \
-        -lcusolverMg -lcusparse -lnppc -lnppial -lnppicc -lnppicom -lnppidei -lnppif -lnppig -lnppim -lnppist \
-        -lnppisu -lnppitc -lnpps -lnvblas -lnvgraph -lnvjpeg -lnvml -lnvrtc -lOpenCL
+# INCLUDEPATH += $$(CUDA_PATH)/include \
+#        F:\tools\CUDA10.2\Samples\common\inc
+#LIBS += -L$$(CUDA_PATH/lib/x64 \
+#        -lcublas -lcublasLt -lcuda -lcudadevrt -lcudart -lcudart_static -lcufft -lcufftw -lcurand -lcusolver \
+#        -lcusolverMg -lcusparse -lnppc -lnppial -lnppicc -lnppicom -lnppidei -lnppif -lnppig -lnppim -lnppist \
+#        -lnppisu -lnppitc -lnpps -lnvblas -lnvgraph -lnvjpeg -lnvml -lnvrtc -lOpenCL
 
 
 SOURCES += \

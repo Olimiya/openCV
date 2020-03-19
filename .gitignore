@@ -1,0 +1,9 @@
+
+*.user*
+.vs
+x64
+debug
+release
+*.qmake.*
+*.bat
+*.filters
