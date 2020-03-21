@@ -3,6 +3,7 @@
 
 extern "C" void MedianFilter_host(int *pixel, int Width, int Height);
 extern "C" void ArithMedianFilter_host(int *pixel, int Width, int Height);
+extern "C" void BicubicScale_host(int *in, int *out, int Width, int Height, int DstWidth, int DstHeight);
 
 bool ImageProcessAlgorithm::GetValue(int p[], int size, int &value)
 {
@@ -264,6 +265,11 @@ uint ImageProcessAlgorithm::medianFilterCUDA(ThreadParam *param)
             }
         }
     }
+    free(pixel);
+    free(pixelR);
+    free(pixelG);
+    free(pixelB);
+
     return 0;
 }
 
@@ -435,6 +441,10 @@ uint ImageProcessAlgorithm::ArithMeanFilterCUDA(ThreadParam *param)
             }
         }
     }
+    free(pixel);
+    free(pixelR);
+    free(pixelG);
+    free(pixelB);
     return 0;
 }
 
@@ -693,6 +703,94 @@ uint ImageProcessAlgorithm::BicubicScale(ThreadParam *param)
             rgb[i] = std::clamp(rgb[i], 0.0, 255.0);
         img->setPixel(ix, iy, qRgb(rgb[0], rgb[1], rgb[2]));
     }
+    return 0;
+}
+
+uint ImageProcessAlgorithm::BicubicScaleCUDA(ThreadParam *param)
+{
+    auto sp = (ScaleParams*)(param->ctx);
+    QImage *img = param->src; //目标图像
+    QImage *src = sp->src; //原图像
+    unsigned char* pRealData = (unsigned char*)src->bits();
+    unsigned char* pDstRealData = (unsigned char*)img->bits();
+    int width = src->width();
+    int height = src->height();
+    int dstWidth = img->width();
+    int dstHeight = img->height();
+    //    int bitCount = param->src->bitPlaneCount() / 8;
+    int bitCount = 32 / 8;
+    int pit = src->bytesPerLine();
+    int dstPit = img->bytesPerLine();
+    int length = height * width;
+    int dstLength = dstWidth * dstHeight;
+    int *pixel = (int*)malloc(length * sizeof(int));
+    int *pixelR = (int*)malloc(length * sizeof(int));
+    int *pixelG = (int*)malloc(length * sizeof(int));
+    int *pixelB = (int*)malloc(length * sizeof(int));
+    int *dstpixel = (int*)malloc(dstLength * sizeof(int));
+    int *dstPixelR = (int*)malloc(dstLength * sizeof(int));
+    int *dstPixelG = (int*)malloc(dstLength * sizeof(int));
+    int *dstPixelB = (int*)malloc(dstLength * sizeof(int));
+    int index = 0;
+
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            if (bitCount == 1)
+            {
+                pixel[index] = *(pRealData + pit * y + x * bitCount);
+                index++;
+            }
+            else
+            {
+                pixelR[index] = *(pRealData + pit * y + x * bitCount + 2);
+                pixelG[index] = *(pRealData + pit * y + x * bitCount + 1);
+                pixelB[index] = *(pRealData + pit * y + x * bitCount);
+                pixel[index] = int(pixelB[index] * 0.299 + 0.587*pixelG[index] + pixelR[index] * 0.144);
+                index++;
+            }
+        }
+    }
+    if (bitCount == 1)
+    {
+        BicubicScale_host(pixel, dstpixel, width, height, dstWidth, dstHeight);
+        index = 0;
+        for (int y = 0; y < dstHeight; y++)
+        {
+            for (int x = 0; x < dstWidth; x++)
+            {
+                *(pDstRealData + dstPit*y + x*bitCount) = dstpixel[index];
+                index++;
+            }
+        }
+    }
+    else
+    {
+        BicubicScale_host(pixelR, dstPixelR, width, height, dstWidth, dstHeight);
+        BicubicScale_host(pixelG, dstPixelG, width, height, dstWidth, dstHeight);
+        BicubicScale_host(pixelB, dstPixelB, width, height, dstWidth, dstHeight);
+        index = 0;
+        for (int y = 0; y < dstHeight; y++)
+        {
+            for (int x = 0; x < dstWidth; x++)
+            {
+                *(pDstRealData + dstPit*y + x*bitCount + 2) = dstPixelR[index];
+                *(pDstRealData + dstPit*y + x*bitCount + 1) = dstPixelG[index];
+                *(pDstRealData + dstPit*y + x*bitCount) = dstPixelB[index];
+                index++;
+            }
+        }
+    }
+
+    free(pixel);
+    free(pixelR);
+    free(pixelG);
+    free(pixelB);
+    free(dstpixel);
+    free(dstPixelR);
+    free(dstPixelG);
+    free(dstPixelB);
     return 0;
 }
 

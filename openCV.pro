@@ -65,7 +65,8 @@ MSVCRT_LINK_FLAG_RELEASE = "/MD"
 
 CUDA_SOURCES += CV/kernel.cu \
             CV/medianFilter.cu \
-            CV/ArithMeanFilter.cu
+            CV/ArithMeanFilter.cu \
+            CV/BicubicScale.cu
 
 # CUDA_PATH = F:/tools/CUDA10.2/CUDA_Development
 CONFIG(debug, debug|release){

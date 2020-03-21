@@ -112,6 +112,13 @@ ThreadParam *ImageProcessWorker::wrapParamHelp(QImage *image, ImageProcessWorker
         {
             m_pThreadParam[i].ctx = m_srcImage;
         }
+        else if(function == ImageProcessAlgorithm::BicubicScaleCUDA)
+        {
+            ImageProcessAlgorithm::ScaleParams *ctr = new ImageProcessAlgorithm::ScaleParams;
+            ctr->scale = m_scale;
+            ctr->src = m_srcImage;
+            m_pThreadParam[i].ctx = ctr;
+        }
 
         m_pThreadParam[i].src = image;
     }
@@ -121,7 +128,8 @@ ThreadParam *ImageProcessWorker::wrapParamHelp(QImage *image, ImageProcessWorker
 void ImageProcessWorker::deleteParamHelp(ThreadParam *param, ImageProcessWorker::ImageProcessFunc function, uint threadNumber)
 {
     if(function == ImageProcessAlgorithm::gaussianNoise || function == ImageProcessAlgorithm::gaussianFilter
-            || function == ImageProcessAlgorithm::BicubicRotate || function == ImageProcessAlgorithm::BicubicScale)
+            || function == ImageProcessAlgorithm::BicubicRotate || function == ImageProcessAlgorithm::BicubicScale
+            || function == ImageProcessAlgorithm::BicubicScaleCUDA)
     {
         for(uint i = 0; i < threadNumber; i++)
         {

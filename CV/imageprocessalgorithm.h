@@ -70,6 +70,12 @@ public:
      * @return
      */
     static uint ArithMeanFilter(ThreadParam *param);
+    /**
+     * @brief ArithMeanFilterCUDA
+     * 使用CUDA并行计算的算术均值滤波
+     * @param param
+     * @return
+     */
     static uint ArithMeanFilterCUDA(ThreadParam *param);
 
     /**
@@ -113,6 +119,7 @@ public:
      * @return
      */
     static uint BicubicScale(ThreadParam *param);
+    static uint BicubicScaleCUDA(ThreadParam *param);
 
     /**
      * @brief FourierTransform

@@ -104,6 +104,8 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->m_outputTextEdit->append(QString(u8"执行放缩操作，放缩比例为: %1").arg(m_scale));
             if(ui->m_triangleCheckBox->isChecked())
                 this->m_currentFunc = ImageProcessAlgorithm::BicubicScale;
+            if(ui->m_threadModeComboBox->currentIndex() == 2)
+                this->m_currentFunc = ImageProcessAlgorithm::BicubicScaleCUDA;
             this->processImageHelp();
         }
     });
@@ -233,6 +235,12 @@ void MainWindow::processImageHelp()
                                   m_toProcessImage.format());
         m_processedImage.fill(Qt::black);
     }
+    else if(m_currentFunc == ImageProcessAlgorithm::BicubicScaleCUDA)
+    {
+        m_processedImage = QImage(m_toProcessImage.width() * m_scale, m_toProcessImage.height() * m_scale,
+                                  m_toProcessImage.format());
+        m_processedImage.fill(Qt::black);
+    }
     else if(m_currentFunc == ImageProcessAlgorithm::BicubicRotate)
     {
         // 计算旋转后的坐标
@@ -299,6 +307,11 @@ void MainWindow::setParamHelp()
     }
     else if(m_currentFunc == ImageProcessAlgorithm::FourierTransform)
     {
+        m_worker->setSrcImage(&m_toProcessImage);
+    }
+    else if(m_currentFunc == ImageProcessAlgorithm::BicubicScaleCUDA)
+    {
+        m_worker->setScaleParam(m_scale);
         m_worker->setSrcImage(&m_toProcessImage);
     }
 }
