@@ -55,7 +55,9 @@ void ImageProcessWorker::imageProcessByQThread(QImage *image, ImageProcessFunc f
 
 void ImageProcessWorker::imageProcessByCUDA(QImage *image, ImageProcessFunc function, uint threadNumber, bool loop)
 {
-
+    //该方法跟单线程完全一样
+    //因为对于CPU就是单线程，多线程是在function中调用GPU进行并行计算
+    imageProcessBySingleThread(image, function, threadNumber, loop);
 }
 
 void ImageProcessWorker::imageProcessBySingleThread(QImage *image, ImageProcessWorker::ImageProcessFunc function, uint threadNumber, bool loop)
@@ -105,6 +107,10 @@ ThreadParam *ImageProcessWorker::wrapParamHelp(QImage *image, ImageProcessWorker
             ctr->angle = m_angle;
             ctr->src = m_srcImage;
             m_pThreadParam[i].ctx = ctr;
+        }
+        else if(function == ImageProcessAlgorithm::FourierTransform)
+        {
+            m_pThreadParam[i].ctx = m_srcImage;
         }
 
         m_pThreadParam[i].src = image;

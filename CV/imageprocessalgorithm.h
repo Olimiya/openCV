@@ -2,7 +2,9 @@
 #define IMAGEPROCESSALGORITHM_H
 
 #include <QImage>
+#include <QMutex>
 #define NOISE 0.2
+#define FOURIER_FACTOR 14.0;
 struct ThreadParam
 {
     QImage *src;
@@ -32,6 +34,7 @@ public:
      * @return
      */
     static uint medianFilter(ThreadParam *param);
+    static uint medianFilterCUDA(ThreadParam *param);
     /**
      * @brief saltAndPepperNoise
      * 椒盐噪声
@@ -101,6 +104,15 @@ public:
      * @return
      */
     static uint BicubicScale(ThreadParam *param);
+
+    /**
+     * @brief FourierTransform
+     * 二维离散傅里叶变换
+     * 暴力法
+     * @param param
+     * @return
+     */
+    static uint FourierTransform(ThreadParam *param);
 
     struct GassuianParam
     {

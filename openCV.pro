@@ -63,7 +63,8 @@ CUDA_INC += $$join(INCLUDEPATH,'" -I"','-I"','"')
 MSVCRT_LINK_FLAG_DEBUG = "/MDd"
 MSVCRT_LINK_FLAG_RELEASE = "/MD"
 
-CUDA_SOURCES += kernel.cu
+CUDA_SOURCES += CV/kernel.cu \
+            CV/medianFilter.cu
 
 # CUDA_PATH = F:/tools/CUDA10.2/CUDA_Development
 CONFIG(debug, debug|release){

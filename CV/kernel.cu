@@ -10,8 +10,8 @@ using namespace std;
 int const M = 5;
 int const N = 10;
 
-
-cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size);
+extern "C"
+void addWithCuda(int *c, const int *a, const int *b, unsigned int size);
 extern "C"
 void getDeviceInfo();
 __global__ void addKernel(int *c, const int *a, const int *b)
@@ -95,7 +95,7 @@ void getDeviceInfo()
 }
 
 // Helper function for using CUDA to add vectors in parallel.
-cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size)
+void addWithCuda(int *c, const int *a, const int *b, unsigned int size)
 {
     int *dev_a = 0;
     int *dev_b = 0;
@@ -172,7 +172,6 @@ Error:
     cudaFree(dev_a);
     cudaFree(dev_b);
 
-    return cudaStatus;
 }
 
 // 矩阵乘法

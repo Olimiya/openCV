@@ -18,8 +18,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    message(QMessageBox::Information, u8"提示", u8"正在处理，请稍等...", QMessageBox::NoButton, this),
-    m_sourceImage(nullptr)
+    message(QMessageBox::Information, u8"提示", u8"正在处理，请稍等...", QMessageBox::NoButton, this)
 {
     ui->setupUi(this);
 
@@ -38,14 +37,14 @@ MainWindow::MainWindow(QWidget *parent) :
     l_buttonGroup->setExclusive(true);
     QButtonGroup *l_buttonGroup1 = new QButtonGroup(this);
     l_buttonGroup1->addButton(ui->m_triangleCheckBox);
-    l_buttonGroup1->addButton(ui->m_fourierCheckBox);
     l_buttonGroup1->setExclusive(true);
 
     //test data
+    ui->m_outputTextEdit->append(u8"初始化...");
     QString l_SourceDir = "G:/photo/1/11.jpg";
     ui->m_inputPathLineEdit->setText(l_SourceDir);
-    m_sourceImage = new QImage(l_SourceDir);
-    ui->m_initPicture->setPixmap(QPixmap::fromImage((*m_sourceImage).scaled(600, 400, Qt::KeepAspectRatio)));
+    m_sourceImage = QImage(l_SourceDir).scaled(600, 400, Qt::KeepAspectRatio);
+    ui->m_initPicture->setPixmap(QPixmap::fromImage(m_sourceImage));
 
 
     //多线程的处理对象
@@ -66,11 +65,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //connect
     connect(ui->m_saltNoisePth, &QPushButton::clicked, [=]{
+        ui->m_outputTextEdit->append(u8"执行添加噪声噪声操作...");
         this->m_currentFunc = ImageProcessAlgorithm::saltAndPepperNoise;
         this->processImageHelp();
     });
     connect(ui->m_middleFilterPtn, &QPushButton::clicked, [=]{
-        this->m_currentFunc = ImageProcessAlgorithm::medianFilter;
+        ui->m_outputTextEdit->append(u8"执行中值滤波操作...");
+        if(ui->m_threadModeComboBox->currentIndex() != 2)
+            this->m_currentFunc = ImageProcessAlgorithm::medianFilter;
+        else
+            this->m_currentFunc = ImageProcessAlgorithm::medianFilterCUDA;
+
         this->processImageHelp();
     });
     connect(ui->m_rotatePtn, &QPushButton::clicked, [=]{
@@ -82,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
         {
             this->m_angle = input.toDouble();
             m_angle = m_angle * std::acos(-1) / 180;
+            ui->m_outputTextEdit->append(QString(u8"执行旋转操作，旋转角度为: %1").arg(m_angle));
             if(ui->m_triangleCheckBox->isChecked())
                 this->m_currentFunc = ImageProcessAlgorithm::BicubicRotate;
             this->processImageHelp();
@@ -95,8 +101,19 @@ MainWindow::MainWindow(QWidget *parent) :
         if(ok && !input.isEmpty())
         {
             this->m_scale = input.toDouble();
+            ui->m_outputTextEdit->append(QString(u8"执行放缩操作，放缩比例为: %1").arg(m_scale));
             if(ui->m_triangleCheckBox->isChecked())
                 this->m_currentFunc = ImageProcessAlgorithm::BicubicScale;
+            this->processImageHelp();
+        }
+    });
+    connect(ui->m_fourierToolButton, &QPushButton::clicked, [=]{
+        auto returnButton = QMessageBox::information(this, u8"提示", u8"该方法复杂度较高，建议使用较小的图片尝试！",
+                                                     QMessageBox::Yes | QMessageBox::Close);
+        if(returnButton == QMessageBox::Yes)
+        {
+            ui->m_outputTextEdit->append(QString(u8"执行傅里叶变换，所需时长较长..."));
+            this->m_currentFunc = ImageProcessAlgorithm::FourierTransform;
             this->processImageHelp();
         }
     });
@@ -115,11 +132,13 @@ MainWindow::MainWindow(QWidget *parent) :
             }
             this->m_mean = params[0].toDouble();
             this->m_stddev = params[1].toDouble();
+            ui->m_outputTextEdit->append(QString(u8"执行添加高斯噪声操作，均值为: %1，标准差为: %2").arg(m_mean).arg(m_stddev));
             this->m_currentFunc = ImageProcessAlgorithm::gaussianNoise;
             this->processImageHelp();
         }
     });
     connect(ui->m_smoothFilterPtn, &QPushButton::clicked, [=]{
+        ui->m_outputTextEdit->append(QString(u8"执行线性平滑滤波操作..."));
         this->m_currentFunc = ImageProcessAlgorithm::ArithMeanFilter;
         this->processImageHelp();
     });
@@ -130,16 +149,19 @@ MainWindow::MainWindow(QWidget *parent) :
                          &ok, Qt::WindowFlags(), Qt::ImhDigitsOnly);
         if(ok && !input.isEmpty())
         {
-            this->m_mean = input.toDouble();
+            this->m_stddev = input.toDouble();
+            ui->m_outputTextEdit->append(QString(u8"执行高斯滤波操作，标准差为: %1").arg(m_stddev));
             this->m_currentFunc = ImageProcessAlgorithm::gaussianFilter;
             this->processImageHelp();
         }
     });
     connect(ui->m_venusFilterPtn, &QPushButton::clicked, [=]{
+        ui->m_outputTextEdit->append(QString(u8"执行维纳滤波操作..."));
         this->m_currentFunc = ImageProcessAlgorithm::WienerFilter;
         this->processImageHelp();
     });
     connect(ui->m_bilateralFilterPtn, &QPushButton::clicked, [=]{
+        ui->m_outputTextEdit->append(QString(u8"执行双边滤波操作..."));
         this->m_currentFunc = ImageProcessAlgorithm::saltAndPepperNoise;
         this->processImageHelp();
     });
@@ -163,8 +185,9 @@ void MainWindow::on_m_filepathButton_clicked()
     if (l_SourceDir.isEmpty())
         return;
     ui->m_inputPathLineEdit->setText(l_SourceDir);
-    m_sourceImage = new QImage(l_SourceDir);
-    ui->m_initPicture->setPixmap(QPixmap::fromImage((*m_sourceImage).scaled(600, 400, Qt::KeepAspectRatio)));
+    m_sourceImage = QImage(l_SourceDir).scaled(600, 400, Qt::KeepAspectRatio);
+    ui->m_initPicture->setPixmap(QPixmap::fromImage(m_sourceImage));
+    ui->m_outputTextEdit->append(QString(u8"已添加图像，已自动缩放比例..."));
 }
 
 void MainWindow::handleResultImage(QImage *image)
@@ -175,14 +198,15 @@ void MainWindow::handleResultImage(QImage *image)
     {
         message.setVisible(true);
     }
-    ui->m_processedPicture->setPixmap(QPixmap::fromImage(image->scaled(600, 400, Qt::KeepAspectRatio)));
-    ui->m_initPicture->setPixmap(QPixmap::fromImage((*m_sourceImage).scaled(600, 400, Qt::KeepAspectRatio)));
+    ui->m_processedPicture->setPixmap(QPixmap::fromImage(*image));
+    //    ui->m_initPicture->setPixmap(QPixmap::fromImage((*m_sourceImage).scaled(600, 400, Qt::KeepAspectRatio)));
     m_processedImage = *image;
+    ui->m_outputTextEdit->append(QString(u8"图像处理结束，处理时间为: %1ms.").arg(l_endTime - m_timeStart));
 }
 
 void MainWindow::processImageHelp()
 {
-    if(m_sourceImage->isNull())
+    if(m_sourceImage.isNull())
     {
         QMessageBox::warning(this, u8"警告", u8"暂未选择图片！!");
         return;
@@ -192,7 +216,7 @@ void MainWindow::processImageHelp()
     int l_threadMode = ui->m_threadModeComboBox->currentIndex();
     //确定输入图片
     if(ui->m_initPlotRadioButton->isChecked())
-        m_toProcessImage = m_sourceImage->copy();
+        m_toProcessImage = m_sourceImage.copy();
     else if(m_processedImage.isNull())
     {
         QMessageBox::warning(this, u8"警告", u8"暂无输出图片!");
@@ -233,12 +257,12 @@ void MainWindow::processImageHelp()
         m_processedImage.fill(Qt::black);
     }
     else
-        m_processedImage = m_toProcessImage;
+        m_processedImage = m_toProcessImage.copy();
 
     switch (l_threadMode)
     {
         case 0:
-            emit processByOpenMP(&m_toProcessImage, m_currentFunc, l_threadNumber, isLoop);
+            emit processByOpenMP(&m_processedImage, m_currentFunc, l_threadNumber, isLoop);
             break;
         case 1:
             emit processByQThread(&m_processedImage, m_currentFunc, l_threadNumber, isLoop);
@@ -261,6 +285,8 @@ void MainWindow::setParamHelp()
 {
     if(m_currentFunc == ImageProcessAlgorithm::gaussianNoise)
         m_worker->setGaussianParam(m_mean, m_stddev);
+    else if(m_currentFunc == ImageProcessAlgorithm::gaussianFilter)
+        m_worker->setGaussianParam(m_mean, m_stddev);
     else if(m_currentFunc == ImageProcessAlgorithm::BicubicScale)
     {
         m_worker->setScaleParam(m_scale);
@@ -271,25 +297,33 @@ void MainWindow::setParamHelp()
         m_worker->setRotatearam(m_angle);
         m_worker->setSrcImage(&m_toProcessImage);
     }
+    else if(m_currentFunc == ImageProcessAlgorithm::FourierTransform)
+    {
+        m_worker->setSrcImage(&m_toProcessImage);
+    }
 }
 
 void MainWindow::on_m_loopNumberSpinBox_valueChanged(int arg1)
 {
     m_worker->setLoopNumber(arg1);
+    ui->m_outputTextEdit->append(QString(u8"已设置循环次数为: %1...").arg(arg1));
 }
 
 void MainWindow::on_m_isLoopCheckBox_stateChanged(int arg1)
 {
     Q_UNUSED(arg1)
     ui->m_loopNumberSpinBox->setEnabled(ui->m_isLoopCheckBox->isChecked());
+    ui->m_outputTextEdit->append(QString(u8"已设置循环处理，注意某些操作将耗时非常久.."));
+
 }
 
 void MainWindow::on_m_threadModeComboBox_currentIndexChanged(int index)
 {
-    if(index == 3)
+    if(index == 3 || index == 2)
         ui->m_threadNumberSpinBox->setEnabled(false);
     else if(!ui->m_threadNumberSpinBox->isEnabled())
         ui->m_threadNumberSpinBox->setEnabled(true);
+    ui->m_outputTextEdit->append(QString(u8"已选择多线程处理方法为: %1...").arg(ui->m_threadModeComboBox->currentText()));
 }
 
 ImageProcessAlgorithm::vec2<double> MainWindow::Vec2AfterRotate(

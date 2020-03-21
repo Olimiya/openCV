@@ -35,7 +35,7 @@ signals:
 private:
     Ui::MainWindow *ui;
     QMessageBox message;
-    QImage *m_sourceImage;
+    QImage m_sourceImage;
     QImage m_toProcessImage;
     QImage m_processedImage;
 

@@ -56,8 +56,10 @@ void aa()
     }
 }
 
-extern "C"
-void getDeviceInfo();
+//test
+//extern "C" void getDeviceInfo();
+//extern "C" void addWithCuda(int *c, const int *a, const int *b, unsigned int size);
+
 
 int main(int argc, char *argv[])
 {

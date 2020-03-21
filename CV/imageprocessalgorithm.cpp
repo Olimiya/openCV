@@ -1,6 +1,8 @@
 ﻿#include "imageprocessalgorithm.h"
 #include <algorithm>
 
+extern "C" void MedianFilter_host(int *pixel, int Width, int Height);
+
 bool ImageProcessAlgorithm::GetValue(int p[], int size, int &value)
 {
     //数组中间的值
@@ -196,6 +198,74 @@ uint ImageProcessAlgorithm::medianFilter(ThreadParam *param)
     return 0;
 }
 
+uint ImageProcessAlgorithm::medianFilterCUDA(ThreadParam *param)
+{
+    unsigned char* pRealData = (unsigned char*)param->src->bits();
+    int width = param->src->width();
+    int height = param->src->height();
+    //    int bitCount = param->src->bitPlaneCount() / 8;
+    int bitCount = 32 / 8;
+    int pit = param->src->bytesPerLine();
+    int length = height * width;
+    int *pixel = (int*)malloc(length * sizeof(int));
+    int *pixelR = (int*)malloc(length * sizeof(int));
+    int *pixelG = (int*)malloc(length * sizeof(int));
+    int *pixelB = (int*)malloc(length * sizeof(int));
+//    int *pixelIndex = (int*)malloc(length * sizeof(int));
+    int index = 0;
+
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            if (bitCount == 1)
+            {
+                pixel[index] = *(pRealData + pit * y + x * bitCount);
+                index++;
+            }
+            else
+            {
+                pixelR[index] = *(pRealData + pit * y + x * bitCount + 2);
+                pixelG[index] = *(pRealData + pit * y + x * bitCount + 1);
+                pixelB[index] = *(pRealData + pit * y + x * bitCount);
+                pixel[index] = int(pixelB[index] * 0.299 + 0.587*pixelG[index] + pixelR[index] * 0.144);
+                index++;
+            }
+        }
+    }
+    if (bitCount == 1)
+    {
+        MedianFilter_host(pixel, width, height);
+        index = 0;
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                *(pRealData + pit*y + x*bitCount) = pixel[index];
+                index++;
+            }
+        }
+    }
+    else
+    {
+        MedianFilter_host(pixelR, width, height);
+        MedianFilter_host(pixelG, width, height);
+        MedianFilter_host(pixelB, width, height);
+        index = 0;
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                *(pRealData + pit*y + x*bitCount + 2) = pixelR[index];
+                *(pRealData + pit*y + x*bitCount + 1) = pixelG[index];
+                *(pRealData + pit*y + x*bitCount) = pixelB[index];
+                index++;
+            }
+        }
+    }
+    return 0;
+}
+
 uint ImageProcessAlgorithm::saltAndPepperNoise(ThreadParam *param)
 {
     int maxWidth = param->src->width();
@@ -227,7 +297,8 @@ uint ImageProcessAlgorithm::saltAndPepperNoise(ThreadParam *param)
             {
                 value = 255;
             }
-            //            param->src->setPixelColor(x, y, QColor(value, value, value));
+//            param->src->setPixelColor(x, y, QColor(value, value, value));
+//            QMutexLocker locker(&mutex);
             if (bitCount == 1)
             {
 
@@ -523,6 +594,7 @@ uint ImageProcessAlgorithm::BicubicScale(ThreadParam *param)
         // Get pixels
         std::vector<int> p[4][4];
 #define FILLPX(x, y, i, j) p[i][j]=getPixelHelp(src, x, y)
+        FILLPX(fx - 1, fy - 1, 0, 0);
         FILLPX(fx - 1, fy + 0, 0, 1);
         FILLPX(fx - 1, fy + 1, 0, 2);
         FILLPX(fx - 1, fy + 2, 0, 3);
@@ -552,6 +624,39 @@ uint ImageProcessAlgorithm::BicubicScale(ThreadParam *param)
             rgb[i] = std::clamp(rgb[i], 0.0, 255.0);
         img->setPixel(ix, iy, qRgb(rgb[0], rgb[1], rgb[2]));
     }
+    return 0;
+}
+
+uint ImageProcessAlgorithm::FourierTransform(ThreadParam *param)
+{
+    auto img = (QImage*)(param->ctx); // 原图像
+    QImage *dest = param->src;  //输出图像
+    const double PI = acos(-1);
+    for (int i = param->startIndex; i < param->endIndex; ++i)
+    {
+        int u = i % dest->width();
+        int v = i / dest->width();
+        double real = 0.0, imag = 0.0;
+        for (int y = 0; y < img->height(); ++y)
+        {
+            for (int x = 0; x < img->width(); ++x)
+            {
+                auto pixel = getPixelHelp(img, x, y);
+                double gray = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
+                if ((x + y) & 1) // centralize
+                    gray = -gray;
+                double A = 2 * PI * ((double)u * (double)x / (double)img->width()
+                                     + (double)v * (double)y / (double)img->height());
+                real += gray * cos(A);
+                imag -= gray * sin(A);
+            }
+        }
+        double mag = sqrt(real * real + imag * imag);
+        mag = std::log(mag + 1) * FOURIER_FACTOR;
+        mag = std::clamp(mag, 0.0, 255.0);
+        dest->setPixel(u, v, qRgb(mag, mag, mag));
+    }
+
     return 0;
 }
 
