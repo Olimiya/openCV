@@ -9,3 +9,5 @@ release
 *.filters
 openCV.pro.user
 *.json
+*.obj
+*.pdb

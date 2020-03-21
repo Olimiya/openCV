@@ -2,6 +2,7 @@
 #include <algorithm>
 
 extern "C" void MedianFilter_host(int *pixel, int Width, int Height);
+extern "C" void ArithMedianFilter_host(int *pixel, int Width, int Height);
 
 bool ImageProcessAlgorithm::GetValue(int p[], int size, int &value)
 {
@@ -365,6 +366,74 @@ uint ImageProcessAlgorithm::ArithMeanFilter(ThreadParam *param)
         ACCUMULATE(x - 1, y + 1); ACCUMULATE(x, y + 1); ACCUMULATE(x + 1, y - 1);
 #undef ACCUMULATE
         img->setPixel(x, y, qRgb(r / TEMPLATE_SIZE, g / TEMPLATE_SIZE, b / TEMPLATE_SIZE));
+    }
+    return 0;
+}
+
+uint ImageProcessAlgorithm::ArithMeanFilterCUDA(ThreadParam *param)
+{
+    unsigned char* pRealData = (unsigned char*)param->src->bits();
+    int width = param->src->width();
+    int height = param->src->height();
+    //    int bitCount = param->src->bitPlaneCount() / 8;
+    int bitCount = 32 / 8;
+    int pit = param->src->bytesPerLine();
+    int length = height * width;
+    int *pixel = (int*)malloc(length * sizeof(int));
+    int *pixelR = (int*)malloc(length * sizeof(int));
+    int *pixelG = (int*)malloc(length * sizeof(int));
+    int *pixelB = (int*)malloc(length * sizeof(int));
+//    int *pixelIndex = (int*)malloc(length * sizeof(int));
+    int index = 0;
+
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            if (bitCount == 1)
+            {
+                pixel[index] = *(pRealData + pit * y + x * bitCount);
+                index++;
+            }
+            else
+            {
+                pixelR[index] = *(pRealData + pit * y + x * bitCount + 2);
+                pixelG[index] = *(pRealData + pit * y + x * bitCount + 1);
+                pixelB[index] = *(pRealData + pit * y + x * bitCount);
+                pixel[index] = int(pixelB[index] * 0.299 + 0.587*pixelG[index] + pixelR[index] * 0.144);
+                index++;
+            }
+        }
+    }
+    if (bitCount == 1)
+    {
+        MedianFilter_host(pixel, width, height);
+        index = 0;
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                *(pRealData + pit*y + x*bitCount) = pixel[index];
+                index++;
+            }
+        }
+    }
+    else
+    {
+        ArithMedianFilter_host(pixelR, width, height);
+        ArithMedianFilter_host(pixelG, width, height);
+        ArithMedianFilter_host(pixelB, width, height);
+        index = 0;
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                *(pRealData + pit*y + x*bitCount + 2) = pixelR[index];
+                *(pRealData + pit*y + x*bitCount + 1) = pixelG[index];
+                *(pRealData + pit*y + x*bitCount) = pixelB[index];
+                index++;
+            }
+        }
     }
     return 0;
 }

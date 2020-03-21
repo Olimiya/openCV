@@ -34,6 +34,13 @@ public:
      * @return
      */
     static uint medianFilter(ThreadParam *param);
+    /**
+     * @brief medianFilterCUDA
+     * 使用CUDA并行计算的中值滤波器
+     * 只需要调用一次该函数
+     * @param param
+     * @return
+     */
     static uint medianFilterCUDA(ThreadParam *param);
     /**
      * @brief saltAndPepperNoise
@@ -63,6 +70,8 @@ public:
      * @return
      */
     static uint ArithMeanFilter(ThreadParam *param);
+    static uint ArithMeanFilterCUDA(ThreadParam *param);
+
     /**
      * @brief gaussianFilter
      * 高斯滤波器 3*3模板
