@@ -2,8 +2,8 @@
 QPushButton{
         border-radius: 4px;
         border: none;
-        width: 30px;
-        height: 30px;
+        width: 93px;
+        height: 28px;
 }
 QPushButton:enabled {
         background: rgb(0, 86, 135);

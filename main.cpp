@@ -1,6 +1,8 @@
 ﻿#include "mainwindow.h"
 #include <QApplication>
 #include <omp.h>
+#include <QDebug>
+#include <iostream>
 
 #define TRUE  1
 #define FALSE 0
@@ -54,9 +56,17 @@ void aa()
     }
 }
 
+extern "C"
+void getDeviceInfo();
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+//    getDeviceInfo();
+//    std::cout.flush();
+
+    QFont font("Microsoft YaHei", 10);
+    a.setFont(font);
     MainWindow w;
     w.show();
 

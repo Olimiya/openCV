@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>920</width>
+    <width>966</width>
     <height>661</height>
    </rect>
   </property>
@@ -15,13 +15,197 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_2">
-    <property name="topMargin">
-     <number>0</number>
-    </property>
     <item row="0" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,2,1,1,1,1,2,1,0,0,0,0">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_4">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>选择地址：</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="m_inputPathLineEdit">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="m_filepathButton">
+        <property name="minimumSize">
+         <size>
+          <width>25</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>25</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="opencv.qrc">
+          <normaloff>:/Icon/search.png</normaloff>:/Icon/search.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>25</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string> 多线程：</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="m_threadModeComboBox">
+        <item>
+         <property name="text">
+          <string>OpenMP</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>QtThread</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>CUDA</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>单线程</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string> 线程数量</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="m_threadNumberSpinBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximum">
+         <number>15</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="m_isLoopCheckBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>循环处理</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>次数</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="m_loopNumberSpinBox">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>100</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="m_initPlotRadioButton">
+        <property name="text">
+         <string>使用原图</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="m_outputPlotRadioButton">
+        <property name="text">
+         <string>使用输出图</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
      <widget class="QTabWidget" name="m_tabwidget">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -31,7 +215,7 @@
       </property>
       <widget class="QWidget" name="m_funtionTab">
        <attribute name="title">
-        <string>功能</string>
+        <string>演示功能</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -81,20 +265,52 @@
          </widget>
         </item>
         <item>
-         <widget class="Line" name="line">
+         <widget class="Line" name="line_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="m_rotatePtn">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>插值与傅里叶变换</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0,0">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QToolButton" name="m_scalePtn">
           <property name="text">
-           <string> 旋转</string>
+           <string>缩放</string>
           </property>
           <property name="icon">
            <iconset resource="opencv.qrc">
-            <normaloff>:/Icon/rotate.png</normaloff>:/Icon/rotate.png</iconset>
+            <normaloff>:/Icon/scale.png</normaloff>:/Icon/scale.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -111,13 +327,13 @@
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="m_scalePtn">
+         <widget class="QToolButton" name="m_rotatePtn">
           <property name="text">
-           <string>缩放</string>
+           <string> 旋转</string>
           </property>
           <property name="icon">
            <iconset resource="opencv.qrc">
-            <normaloff>:/Icon/scale.png</normaloff>:/Icon/scale.png</iconset>
+            <normaloff>:/Icon/rotate.png</normaloff>:/Icon/rotate.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -159,12 +375,32 @@
          </widget>
         </item>
         <item>
-         <widget class="Line" name="line_2">
+         <widget class="Line" name="line_4">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
          </widget>
         </item>
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>噪声与滤波</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
          <widget class="QToolButton" name="m_gaussianNoisePtn">
           <property name="text">
@@ -288,101 +524,14 @@
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_2">
-       <attribute name="title">
-        <string>处理方式</string>
-       </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0,0,0">
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string> 多线程：</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="m_threadModeComboBox">
-          <item>
-           <property name="text">
-            <string>OpenMP</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>QtThread</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Win多线程</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>CUDA</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string> 线程数量</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="m_threadNumberSpinBox">
-          <property name="maximum">
-           <number>15</number>
-          </property>
-          <property name="value">
-           <number>5</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Line" name="line_4">
+         <widget class="Line" name="line">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="m_isLoopCheckBox">
-          <property name="text">
-           <string>循环处理100次</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
+         <spacer name="horizontalSpacer_4">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -398,9 +547,9 @@
       </widget>
      </widget>
     </item>
-    <item row="1" column="0">
-     <layout class="QGridLayout" name="gridLayout" rowstretch="1,5" columnstretch="1,1">
-      <item row="1" column="0">
+    <item row="2" column="0">
+     <layout class="QGridLayout" name="gridLayout" rowstretch="1" columnstretch="1,1">
+      <item row="0" column="0">
        <widget class="QLabel" name="m_initPicture">
         <property name="text">
          <string>输入</string>
@@ -413,7 +562,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="0" column="1">
        <widget class="QLabel" name="m_processedPicture">
         <property name="text">
          <string>输出</string>
@@ -426,55 +575,9 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>选择地址：</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="m_inputPathLineEdit"/>
-        </item>
-        <item>
-         <widget class="QPushButton" name="m_filepathButton">
-          <property name="minimumSize">
-           <size>
-            <width>25</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>25</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="opencv.qrc">
-            <normaloff>:/Icon/search.png</normaloff>:/Icon/search.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>25</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
     </item>
-    <item row="2" column="0">
+    <item row="3" column="0">
      <widget class="QTextBrowser" name="m_outputTextBrowser"/>
     </item>
    </layout>
@@ -484,7 +587,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>920</width>
+     <width>966</width>
      <height>25</height>
     </rect>
    </property>

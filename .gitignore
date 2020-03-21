@@ -8,3 +8,4 @@ release
 *.bat
 *.filters
 openCV.pro.user
+*.json
