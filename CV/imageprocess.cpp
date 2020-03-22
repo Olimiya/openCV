@@ -94,14 +94,14 @@ ThreadParam *ImageProcessWorker::wrapParamHelp(QImage *image, ImageProcessWorker
             ctr->stddev = m_stddev;
             m_pThreadParam[i].ctx = ctr;
         }
-        else if(function == ImageProcessAlgorithm::BicubicScale)
+        else if(function == ImageProcessAlgorithm::BicubicScale || function == ImageProcessAlgorithm::BicubicScaleCUDA)
         {
             ImageProcessAlgorithm::ScaleParams *ctr = new ImageProcessAlgorithm::ScaleParams;
             ctr->scale = m_scale;
             ctr->src = m_srcImage;
             m_pThreadParam[i].ctx = ctr;
         }
-        else if(function == ImageProcessAlgorithm::BicubicRotate)
+        else if(function == ImageProcessAlgorithm::BicubicRotate || function == ImageProcessAlgorithm::BicubicRotateCUDA)
         {
             ImageProcessAlgorithm::RotateParams *ctr = new ImageProcessAlgorithm::RotateParams;
             ctr->angle = m_angle;
@@ -111,13 +111,6 @@ ThreadParam *ImageProcessWorker::wrapParamHelp(QImage *image, ImageProcessWorker
         else if(function == ImageProcessAlgorithm::FourierTransform)
         {
             m_pThreadParam[i].ctx = m_srcImage;
-        }
-        else if(function == ImageProcessAlgorithm::BicubicScaleCUDA)
-        {
-            ImageProcessAlgorithm::ScaleParams *ctr = new ImageProcessAlgorithm::ScaleParams;
-            ctr->scale = m_scale;
-            ctr->src = m_srcImage;
-            m_pThreadParam[i].ctx = ctr;
         }
 
         m_pThreadParam[i].src = image;
@@ -129,7 +122,7 @@ void ImageProcessWorker::deleteParamHelp(ThreadParam *param, ImageProcessWorker:
 {
     if(function == ImageProcessAlgorithm::gaussianNoise || function == ImageProcessAlgorithm::gaussianFilter
             || function == ImageProcessAlgorithm::BicubicRotate || function == ImageProcessAlgorithm::BicubicScale
-            || function == ImageProcessAlgorithm::BicubicScaleCUDA)
+            || function == ImageProcessAlgorithm::BicubicScaleCUDA || function == ImageProcessAlgorithm::BicubicRotateCUDA)
     {
         for(uint i = 0; i < threadNumber; i++)
         {

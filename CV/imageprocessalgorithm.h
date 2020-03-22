@@ -109,6 +109,7 @@ public:
      * @return
      */
     static uint BicubicRotate(ThreadParam *param);
+    static uint BicubicRotateCUDA(ThreadParam *param);
     /**
      * @brief BicubicScale
      * 双三次插值放缩

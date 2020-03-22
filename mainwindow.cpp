@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //test data
     ui->m_outputTextEdit->append(u8"初始化...");
-    QString l_SourceDir = "G:/photo/1/11.jpg";
+    QString l_SourceDir = u8"G:\\Photo\\狗妈\\1.jpg";
     ui->m_inputPathLineEdit->setText(l_SourceDir);
     m_sourceImage = QImage(l_SourceDir).scaled(600, 400, Qt::KeepAspectRatio);
     ui->m_initPicture->setPixmap(QPixmap::fromImage(m_sourceImage));
@@ -86,10 +86,12 @@ MainWindow::MainWindow(QWidget *parent) :
         if(ok && !input.isEmpty())
         {
             this->m_angle = input.toDouble();
-            m_angle = m_angle * std::acos(-1) / 180;
             ui->m_outputTextEdit->append(QString(u8"执行旋转操作，旋转角度为: %1").arg(m_angle));
+            m_angle = m_angle * std::acos(-1) / 180;
             if(ui->m_triangleCheckBox->isChecked())
                 this->m_currentFunc = ImageProcessAlgorithm::BicubicRotate;
+            if(ui->m_threadModeComboBox->currentIndex() == 2)
+                this->m_currentFunc = ImageProcessAlgorithm::BicubicRotateCUDA;
             this->processImageHelp();
         }
     });
@@ -229,19 +231,13 @@ void MainWindow::processImageHelp()
     setParamHelp();
 
     //确定输出图片
-    if(m_currentFunc == ImageProcessAlgorithm::BicubicScale)
+    if(m_currentFunc == ImageProcessAlgorithm::BicubicScale || m_currentFunc == ImageProcessAlgorithm::BicubicScaleCUDA)
     {
         m_processedImage = QImage(m_toProcessImage.width() * m_scale, m_toProcessImage.height() * m_scale,
                                   m_toProcessImage.format());
         m_processedImage.fill(Qt::black);
     }
-    else if(m_currentFunc == ImageProcessAlgorithm::BicubicScaleCUDA)
-    {
-        m_processedImage = QImage(m_toProcessImage.width() * m_scale, m_toProcessImage.height() * m_scale,
-                                  m_toProcessImage.format());
-        m_processedImage.fill(Qt::black);
-    }
-    else if(m_currentFunc == ImageProcessAlgorithm::BicubicRotate)
+    else if(m_currentFunc == ImageProcessAlgorithm::BicubicRotate || m_currentFunc == ImageProcessAlgorithm::BicubicRotateCUDA)
     {
         // 计算旋转后的坐标
         double sina = sin(m_angle);
@@ -295,23 +291,18 @@ void MainWindow::setParamHelp()
         m_worker->setGaussianParam(m_mean, m_stddev);
     else if(m_currentFunc == ImageProcessAlgorithm::gaussianFilter)
         m_worker->setGaussianParam(m_mean, m_stddev);
-    else if(m_currentFunc == ImageProcessAlgorithm::BicubicScale)
+    else if(m_currentFunc == ImageProcessAlgorithm::BicubicScale || m_currentFunc == ImageProcessAlgorithm::BicubicScaleCUDA)
     {
         m_worker->setScaleParam(m_scale);
         m_worker->setSrcImage(&m_toProcessImage);
     }
-    else if(m_currentFunc == ImageProcessAlgorithm::BicubicRotate)
+    else if(m_currentFunc == ImageProcessAlgorithm::BicubicRotate || m_currentFunc == ImageProcessAlgorithm::BicubicRotateCUDA)
     {
         m_worker->setRotatearam(m_angle);
         m_worker->setSrcImage(&m_toProcessImage);
     }
     else if(m_currentFunc == ImageProcessAlgorithm::FourierTransform)
     {
-        m_worker->setSrcImage(&m_toProcessImage);
-    }
-    else if(m_currentFunc == ImageProcessAlgorithm::BicubicScaleCUDA)
-    {
-        m_worker->setScaleParam(m_scale);
         m_worker->setSrcImage(&m_toProcessImage);
     }
 }
@@ -336,7 +327,13 @@ void MainWindow::on_m_threadModeComboBox_currentIndexChanged(int index)
         ui->m_threadNumberSpinBox->setEnabled(false);
     else if(!ui->m_threadNumberSpinBox->isEnabled())
         ui->m_threadNumberSpinBox->setEnabled(true);
+
     ui->m_outputTextEdit->append(QString(u8"已选择多线程处理方法为: %1...").arg(ui->m_threadModeComboBox->currentText()));
+    if(index == 2)
+    {
+        ui->m_outputTextEdit->append(QString(u8"CUDA实现的方法仅有: %1，%2，%3，%4...").
+                                     arg(u8"中值滤波").arg(u8"算术均值滤波").arg(u8"三阶插值旋转").arg(u8"三阶插值放缩"));
+    }
 }
 
 ImageProcessAlgorithm::vec2<double> MainWindow::Vec2AfterRotate(

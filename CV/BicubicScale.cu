@@ -29,7 +29,7 @@ __device__ double BicubicWeight(double x)
 }
 
 
-__global__ void BicubicScale(int *In, int *Out, int Width, int Height, float xRatio, float yRatio)
+__global__ void BicubicScale(int *In, int *Out, int Width, int Height, int dstWidth, float xRatio, float yRatio)
 {
 	int ix = blockDim.x * blockIdx.x + threadIdx.x; //目标位置
 	int iy = blockDim.y * blockIdx.y + threadIdx.y;
@@ -45,7 +45,7 @@ __global__ void BicubicScale(int *In, int *Out, int Width, int Height, float xRa
         fx = fx >= Width ? Width - 1 : fx;
         fy = fy < 0 ? 0 : fy;
         fy = fy >= Height ? Height - 1 : fy;
-        Out[iy* Width + ix] = In[fy * Width + fx];
+        Out[iy* dstWidth + ix] = In[fy * Width + fx];
         return;
     }
 
@@ -62,26 +62,24 @@ __global__ void BicubicScale(int *In, int *Out, int Width, int Height, float xRa
 
     // Get pixels
     int p[4][4];
-    p[0][0] = In[(fy - 1) * Width + fx - 1];
-    p[0][1] = In[(fy - 1) * Width + fx - 1];
-    p[0][2] = In[(fy - 1) * Width + fx-1];
-    p[0][3] = In[(fy - 1) * Width + fx-1];
-
-    p[1][0] = In[fy * Width + fx];
-    p[1][1] = In[fy * Width + fx];
-    p[1][2] = In[fy * Width + fx];
-    p[1][3] = In[fy * Width + fx];
-
-    p[2][0] = In[(fy + 1) * Width + fx+1];
-    p[2][1] = In[(fy + 1) * Width + fx+1];
-    p[2][2] = In[(fy + 1) * Width + fx+1];
-    p[2][3] = In[(fy + 1) * Width + fx+1];
-
-    p[3][0] = In[(fy + 1) * Width + fx+2];
-    p[3][1] = In[(fy + 2) * Width + fx+2];
-    p[3][2] = In[(fy + 2) * Width + fx+2];
-    p[3][3] = In[(fy + 2) * Width + fx+2];
-
+#define FILLPX(_x, _y, _i, _j) p[_i][_j]=In[(_y) * Width + (_x)]
+        FILLPX(fx - 1, fy - 1, 0, 0);
+        FILLPX(fx - 1, fy + 0, 0, 1);
+        FILLPX(fx - 1, fy + 1, 0, 2);
+        FILLPX(fx - 1, fy + 2, 0, 3);
+        FILLPX(fx + 0, fy - 1, 1, 0);
+        FILLPX(fx + 0, fy + 0, 1, 1);
+        FILLPX(fx + 0, fy + 1, 1, 2);
+        FILLPX(fx + 0, fy + 2, 1, 3);
+        FILLPX(fx + 1, fy - 1, 2, 0);
+        FILLPX(fx + 1, fy + 0, 2, 1);
+        FILLPX(fx + 1, fy + 1, 2, 2);
+        FILLPX(fx + 1, fy + 2, 2, 3);
+        FILLPX(fx + 2, fy - 1, 3, 0);
+        FILLPX(fx + 2, fy + 0, 3, 1);
+        FILLPX(fx + 2, fy + 1, 3, 2);
+        FILLPX(fx + 2, fy + 2, 3, 3);
+#undef FILLPX
     double rgb = 0;
     for (int i = 0; i < 4; ++i)
         for (int j = 0; j < 4; ++j)
@@ -93,7 +91,8 @@ __global__ void BicubicScale(int *In, int *Out, int Width, int Height, float xRa
         rgb = 0;
     else if (rgb > 255)
         rgb = 255;
-    Out[iy* Width + ix] = rgb;
+    Out[iy* dstWidth + ix] = rgb;
+//    Out[iy* dstWidth + ix] = 100;
 }
 
 extern "C" void BicubicScale_host(int *in, int *out, int Width, int Height, int DstWidth, int DstHeight)
@@ -110,7 +109,7 @@ extern "C" void BicubicScale_host(int *in, int *out, int Width, int Height, int 
 	
     float xRatio = (float)DstWidth / Width;
     float yRatio = (float)DstHeight / Height;
-	BicubicScale << <dimGrid, dimBlock >> > (pixelIn, pixelOut, Width, Height, xRatio, yRatio);
+    BicubicScale << <dimGrid, dimBlock >> > (pixelIn, pixelOut, Width, Height, DstWidth, xRatio, yRatio);
 
 //    checkCudaErrors(cudaMemcpy(out, pixelOut, sizeof(int) * Width * Height, cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaMemcpy(out, pixelOut, sizeof(int) * DstWidth * DstHeight, cudaMemcpyDeviceToHost));
