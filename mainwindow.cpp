@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //test data
     ui->m_outputTextEdit->append(u8"初始化...");
-    QString l_SourceDir = u8"G:\\Photo\\狗妈\\1.jpg";
+    QString l_SourceDir = u8":/Icon/test.jpg";
     ui->m_inputPathLineEdit->setText(l_SourceDir);
     m_sourceImage = QImage(l_SourceDir).scaled(600, 400, Qt::KeepAspectRatio);
     ui->m_initPicture->setPixmap(QPixmap::fromImage(m_sourceImage));
@@ -189,7 +189,8 @@ void MainWindow::on_m_filepathButton_clicked()
     if (l_SourceDir.isEmpty())
         return;
     ui->m_inputPathLineEdit->setText(l_SourceDir);
-    m_sourceImage = QImage(l_SourceDir).scaled(600, 400, Qt::KeepAspectRatio);
+    m_sourceImage = QImage(l_SourceDir);
+//    .scaled(600, 400, Qt::KeepAspectRatio);
     ui->m_initPicture->setPixmap(QPixmap::fromImage(m_sourceImage));
     ui->m_outputTextEdit->append(QString(u8"已添加图像，已自动缩放比例..."));
 }

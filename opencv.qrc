@@ -11,5 +11,6 @@
         <file>Icon/triangle.png</file>
         <file>Icon/fourier.png</file>
         <file>Icon/search.png</file>
+        <file>Icon/test.jpg</file>
     </qresource>
 </RCC>
